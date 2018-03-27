@@ -82,7 +82,6 @@ def parse_file( fname, edges, transform, screen, color ):
             add_box(edges,
                     float(args[0]), float(args[1]), float(args[2]),
                     float(args[3]), float(args[4]), float(args[5]))
-            #draw_polygons(edges, screen, color)
 
         elif line == 'circle':
             #print 'CIRCLE\t' + str(args)
