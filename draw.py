@@ -3,9 +3,14 @@ from matrix import *
 from math import *
 
 def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
+    '''
     add_point(points, x0, y0, z0)
     add_point(points, x1, y1, z1)
     add_point(points, x2, y2, z2)
+    '''
+    add_edge(points, x0, y0, z0, x1, y1, z1)
+    add_edge(points, x1, y1, z1, x2, y2, z2)
+    add_edge(points, x2, y2, z2, x0, y0, z0)
 
 def draw_polygons( matrix, screen, color ):
     if len(matrix) < 3:
@@ -13,22 +18,30 @@ def draw_polygons( matrix, screen, color ):
         return
     point = 0
     while point < len(matrix) - 2:
-        draw_line( int(matrix[point][0]),
-                       int(matrix[point][1]),
-                       int(matrix[point+1][0]),
-                       int(matrix[point+1][1]),
-                       screen, color)
-        draw_line( int(matrix[point+1][0]),
-                       int(matrix[point+1][1]),
-                       int(matrix[point+2][0]),
-                       int(matrix[point+2][1]),
-                       screen, color)
-        draw_line( int(matrix[point][0]),
-                       int(matrix[point][1]),
-                       int(matrix[point+2][0]),
-                       int(matrix[point+2][1]),
-                       screen, color)
+        ax = matrix[point+1][0] - matrix[point][0]
+        ay = matrix[point+1][1] - matrix[point][1]
+        bx = matrix[point+2][0] - matrix[point][0]
+        by = matrix[point+2][1] - matrix[point][1]
+        n = (ax*by) - (ay*bx)
+
+        if n>0:
+            draw_line( int(matrix[point][0]),
+                           int(matrix[point][1]),
+                           int(matrix[point+1][0]),
+                           int(matrix[point+1][1]),
+                           screen, color)
+            draw_line( int(matrix[point+1][0]),
+                           int(matrix[point+1][1]),
+                           int(matrix[point+2][0]),
+                           int(matrix[point+2][1]),
+                           screen, color)
+            draw_line( int(matrix[point][0]),
+                           int(matrix[point][1]),
+                           int(matrix[point+2][0]),
+                           int(matrix[point+2][1]),
+                           screen, color)
         point+= 3
+        #change to point+= 6
         
 def add_box( points, x, y, z, width, height, depth ):
     x1 = x + width
@@ -60,6 +73,7 @@ def add_sphere( edges, cx, cy, cz, r, step ):
     for lat in range(lat_start, lat_stop):
         for longt in range(longt_start, longt_stop):
             index = lat * step + longt
+            #print index
 
             add_polygon(edges, points[index][0],
                      points[index][1],
@@ -114,12 +128,24 @@ def add_torus( edges, cx, cy, cz, r0, r1, step ):
         for longt in range(longt_start, longt_stop):
             index = lat * step + longt
 
-            add_edge(edges, points[index][0],
+            add_polygon(edges, points[index][0],
                      points[index][1],
                      points[index][2],
-                     points[index][0]+1,
-                     points[index][1]+1,
-                     points[index][2]+1 )
+                     points[(index+1)%(len(points))][0],
+                     points[(index+1)%(len(points))][1],
+                     points[(index+1)%(len(points))][2],
+                     points[(index+step+1)%(len(points))][0],
+                     points[(index+step+1)%(len(points))][1],
+                     points[(index+step+1)%(len(points))][2] )
+            add_polygon(edges, points[index][0],
+                     points[index][1],
+                     points[index][2],
+                     points[(index+step)%(len(points))][0],
+                     points[(index+step)%(len(points))][1],
+                     points[(index+step)%(len(points))][2],
+                     points[(index+step+1)%(len(points))][0],
+                     points[(index+step+1)%(len(points))][1],
+                     points[(index+step+1)%(len(points))][2] )
 
 def generate_torus( cx, cy, cz, r0, r1, step ):
     points = []
